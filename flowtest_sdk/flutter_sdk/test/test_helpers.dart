@@ -1,16 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart';
-import 'dart:io';
 
 /// Helper to detect if we're in an environment suitable for integration tests
+/// Uses bulletproof binding check instead of environment variables
 bool get _isIntegrationEnv {
-  // Check if we're running on a real device or emulator
-  // This can be detected by checking if platform channels are available
   try {
-    // In a true integration test environment, platform channels work
-    // In widget test environment, they don't
-    return Platform.environment.containsKey('FLUTTER_TEST_DEVICE') ||
-        Platform.environment.containsKey('INTEGRATION_TEST');
+    // Most reliable detection: check the binding type name
+    final binding = TestWidgetsFlutterBinding.ensureInitialized();
+    final bindingTypeName = binding.runtimeType.toString();
+    return bindingTypeName.contains('IntegrationTest');
   } catch (_) {
     return false;
   }
@@ -46,6 +44,7 @@ void integrationTest(
     skip: shouldSkip,
     timeout:
         timeout ?? const Timeout(Duration(minutes: 5)), // Reasonable default
+    tags: ['integration'], // Tag for selective running
   );
 
   // Print skip reason for clarity

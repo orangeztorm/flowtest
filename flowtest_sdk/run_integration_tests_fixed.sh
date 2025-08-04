@@ -87,29 +87,29 @@ if [ "$DEVICE_AVAILABLE" = false ] && [ "${AUTO_START_EMULATOR:-false}" = "true"
     fi
 fi
 
-# Exit early if no devices available
+# Exit early if no devices available (change to exit 1 if you want CI to fail)
 if [ "$DEVICE_AVAILABLE" = false ]; then
     echo "🚫 No emulator or physical device detected — skipping integration tests."
     echo "💡 To run integration tests:"
     echo "   • Connect a physical device, or"
     echo "   • Start an emulator, or"
     echo "   • Set AUTO_START_EMULATOR=true for CI environments"
-    exit 0
+    exit 0  # Change to exit 1 if you want CI to fail when no device
 fi
 
 # Show connected devices
 echo "📱 Available devices:"
 flutter devices
 
-# Run the integration tests
+# Run the integration tests with proper tagging
 echo "🧪 Running Flutter integration tests..."
 
 if [ -d "integration_test" ]; then
     echo "Running integration_test/ directory..."
-    flutter test integration_test
+    flutter test integration_test --tags integration
 elif [ -d "test/integration" ]; then
     echo "Running test/integration/ directory..."
-    flutter test test/integration
+    flutter test test/integration --tags integration
 else
     echo "❌ No integration test directory found (integration_test/ or test/integration/)"
     exit 1

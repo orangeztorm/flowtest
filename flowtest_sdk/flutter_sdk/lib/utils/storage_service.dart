@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 import '../models/test_flow.dart';
 
 /// Professional storage service for saving and loading test flows
@@ -142,7 +143,7 @@ class StorageService {
           .cast<File>()
           .toList();
 
-      return files.map((file) => file.path.split('/').last).toList();
+      return files.map((file) => path.basename(file.path)).toList();
     } catch (e) {
       throw StorageException('Failed to list flows: $e');
     }
@@ -162,7 +163,9 @@ class StorageService {
   static Future<bool> deleteFlow(String fileName) async {
     try {
       final directory = await _safeDocsDir();
-      final file = File('${directory.path}/$_flowsDirectoryName/$fileName');
+      final file = File(
+        path.join(directory.path, _flowsDirectoryName, fileName),
+      );
 
       if (await file.exists()) {
         await file.delete();
@@ -171,6 +174,16 @@ class StorageService {
       return false;
     } catch (e) {
       throw StorageException('Failed to delete flow $fileName: $e');
+    }
+  }
+
+  /// Clean up cached temp directory (for testing)
+  static void cleanupTempDir() {
+    try {
+      _tempDir?.deleteSync(recursive: true);
+      _tempDir = null;
+    } catch (_) {
+      // Ignore cleanup errors
     }
   }
 }

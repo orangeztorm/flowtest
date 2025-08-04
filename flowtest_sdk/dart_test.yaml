@@ -1,0 +1,22 @@
+# dart_test.yaml
+# Test configuration for FlowTest SDK
+
+tags:
+  integration:
+    skip: false   # Declaration only; no behavior change
+    # Use: flutter test --tags integration to run only integration tests
+    # Use: flutter test --exclude-tags integration to skip integration tests
+
+# Test execution timeout
+timeout: 10m
+
+# File patterns for test discovery
+paths:
+  - test/
+  - integration_test/
+
+# Test naming conventions
+test_randomize_ordering_seed: random
+
+# Concurrency settings for faster test execution
+concurrency: 4

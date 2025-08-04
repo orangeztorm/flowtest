@@ -1,8 +1,10 @@
 # FlowTest SDK 🎯
 
+[![Tests](https://github.com/orangeztorm/flowtest/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/orangeztorm/flowtest/actions/workflows/integration-tests.yml)
 [![Flutter Version](https://img.shields.io/badge/Flutter-3.32.0-blue.svg)](https://flutter.dev/)
 [![Dart Version](https://img.shields.io/badge/Dart-3.8.0-blue.svg)](https://dart.dev/)
 [![Platform](https://img.shields.io/badge/Platform-iOS%20|%20Android%20|%20Web%20|%20Desktop-lightgrey.svg)](https://flutter.dev/docs/development/tools/sdk/release-notes)
+[![Coverage](https://codecov.io/gh/orangeztorm/flowtest/branch/main/graph/badge.svg)](https://codecov.io/gh/orangeztorm/flowtest)
 
 A comprehensive Flutter SDK for **visual test recording and automated playback** during development and integration testing. Record user interactions as JSON flows and replay them seamlessly across all platforms.
 
@@ -421,6 +423,111 @@ RecorderController.instance.debugPrintWidgetTree = true;
 7. ✅ **Integration Examples** - Comprehensive test suite
 
 **Ready for production use, testing, and potential publishing! 🚀**
+
+## 🧪 Testing & CI/CD
+
+### Running Tests Locally
+
+```bash
+# Run all tests
+flutter test
+
+# Run only unit tests
+flutter test --exclude-tags integration
+
+# Run only integration tests  
+flutter test --tags integration
+
+# Run integration tests on specific device
+flutter test integration_test/ -d "device-id"
+
+# Run with coverage
+flutter test --coverage
+```
+
+### Test Tags Configuration
+
+The SDK uses `dart_test.yaml` for test configuration:
+
+```yaml
+# dart_test.yaml
+tags:
+  integration:
+    skip: false   # Declaration only; no behavior change
+
+# Usage examples:
+# flutter test --tags integration      # Run only integration tests
+# flutter test --exclude-tags integration  # Skip integration tests
+```
+
+### CI/CD Integration
+
+#### Automated Script
+
+Use the provided CI script for automated testing:
+
+```bash
+# Auto-detect device and run tests
+./scripts/run_integration_tests.sh
+
+# Use specific device
+./scripts/run_integration_tests.sh --device-id "simulator-id"
+
+# CI environment
+CI=true ./scripts/run_integration_tests.sh
+```
+
+#### GitHub Actions
+
+The repository includes a complete GitHub Actions workflow (`.github/workflows/integration-tests.yml`) that:
+
+- ✅ Tests on iOS, Android, and macOS
+- ✅ Collects test artifacts and screenshots
+- ✅ Uploads coverage reports
+- ✅ Creates test summary reports
+
+#### Test Artifacts
+
+Failed tests automatically capture:
+
+- 📸 **Screenshots** in `flowtest_screenshots/`
+- 📊 **Coverage reports** in `coverage/`
+- 📝 **Test logs** for debugging
+
+### Test Architecture
+
+The SDK uses a **defense-in-depth** testing strategy:
+
+1. **Layer 1**: Dart environment detection
+2. **Layer 2**: Platform channel timeout protection  
+3. **Layer 3**: Integration test binding configuration
+
+This ensures tests never hang in any environment (development, CI/CD, or production).
+
+### Example Integration Test
+
+```dart
+import 'package:integration_test/integration_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:flowtest_sdk/flowtest_sdk.dart';
+
+void main() {
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  group('FlowTest Integration', () {
+    testWidgets('Complete flow execution', (WidgetTester tester) async {
+      // Load and execute a recorded flow
+      final flow = await FlowLoader.fromAsset('test_flows/login_flow.json');
+      final runner = FlowRunner(tester, verbose: true);
+      
+      await runner.run(flow);
+      
+      // Screenshots automatically captured on failure
+      expect(find.text('Success'), findsOneWidget);
+    }, tags: ['integration']);
+  });
+}
+```
 
 ## 📄 License
 
