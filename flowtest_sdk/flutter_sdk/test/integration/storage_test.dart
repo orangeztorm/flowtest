@@ -17,7 +17,7 @@ void main() {
       try {
         // Load a flow from assets using the new method
         final flow = await FlowLoader.fromAsset(
-          'flutter_sdk/test_flows/sample_login_flow.json',
+          'test_flows/sample_login_flow.json',
         );
 
         // Verify the flow loaded correctly

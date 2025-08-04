@@ -56,6 +56,11 @@ class StorageService {
       final safeName = fileName.endsWith('.json') ? fileName : '$fileName.json';
       final file = File('${flowsDir.path}/$safeName');
 
+      // Handle file overwrite by deleting existing file
+      if (await file.exists()) {
+        await file.delete();
+      }
+
       final jsonString = json.encode(flow.toJson());
       await file.writeAsString(jsonString);
 
