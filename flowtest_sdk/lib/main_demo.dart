@@ -196,12 +196,12 @@ class _DemoHomePageState extends State<DemoHomePage> {
                   Icon(Icons.info, color: Colors.blue),
                   SizedBox(height: 8),
                   Text(
-                    'FlowTest SDK Recording',
+                    'FlowTest SDK Demo',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'In debug mode, use the blue record button to capture your interactions as test flows!',
+                    'This app demonstrates widgets that can be tested with the FlowTest SDK. Use the SDK to record and replay test flows.',
                     textAlign: TextAlign.center,
                   ),
                 ],

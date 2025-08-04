@@ -14,6 +14,7 @@ The FlowTest SDK reaches version 1.0.0 with all core features implemented and pr
 ### Added
 
 #### Core Features
+
 - **Visual Recording System**: Real-time interaction capture with professional overlay UI
 - **Automated Playback Engine**: JSON-based test flow execution with WidgetTester integration
 - **Unified Selector System**: Single API supporting @key, text:, button:, input:, type: patterns
@@ -22,6 +23,7 @@ The FlowTest SDK reaches version 1.0.0 with all core features implemented and pr
 - **Comprehensive Error Handling**: Screenshot capture on failures with detailed context
 
 #### Recording Features
+
 - FlowRecorderOverlay with sophisticated hit testing using Element tree traversal
 - RecorderController singleton for managing recording state
 - RecorderToggle widget with intuitive start/stop/export controls
@@ -29,7 +31,8 @@ The FlowTest SDK reaches version 1.0.0 with all core features implemented and pr
 - Performance monitoring with Timeline.timeSync integration
 - Overlay filtering to exclude recorder UI from captures
 
-#### Playback Features  
+#### Playback Features
+
 - FlowRunner for orchestrating test execution with step progress tracking
 - TargetResolver supporting all selector patterns with robust widget finding
 - ExpectationMatcher for comprehensive test assertions
@@ -38,6 +41,7 @@ The FlowTest SDK reaches version 1.0.0 with all core features implemented and pr
 - Asset and storage loading with comprehensive error handling
 
 #### Storage & Persistence
+
 - StorageService with cross-platform file operations
 - Asset bundling configuration for test flows
 - Collision detection and safe file naming
@@ -45,6 +49,7 @@ The FlowTest SDK reaches version 1.0.0 with all core features implemented and pr
 - Flow listing and management utilities
 
 #### Developer Experience
+
 - FlowLogger with ANSI color support and graceful fallback
 - Step progress indicators ([1/5], [2/5] format)
 - Professional error messages with actionable context
@@ -54,18 +59,21 @@ The FlowTest SDK reaches version 1.0.0 with all core features implemented and pr
 ### Technical Implementation
 
 #### Models & Data Structures
+
 - `TestFlow` class with JSON serialization and validation
 - `FlowStep` supporting tap, input, wait, scroll, swipe, expect actions
 - `Expectation` class with comprehensive condition checking
 - Enums for actions, conditions, and configuration options
 
 #### Cross-Platform Compatibility
+
 - iOS, Android, Web, macOS, Linux, Windows support
 - Platform-specific optimizations and graceful degradation
 - ANSI color detection for terminal compatibility
 - Path handling with proper OS-safe directory resolution
 
 #### Production Features
+
 - Thread-safe operations with proper error boundaries
 - Memory efficient implementation with minimal overhead
 - CI/CD integration with quiet mode support
@@ -75,6 +83,7 @@ The FlowTest SDK reaches version 1.0.0 with all core features implemented and pr
 ### Documentation
 
 #### Comprehensive Guides
+
 - Complete API documentation with examples
 - Hit testing implementation deep-dive (HIT_TESTING.md)
 - Professional README with quick start and advanced configuration
@@ -82,6 +91,7 @@ The FlowTest SDK reaches version 1.0.0 with all core features implemented and pr
 - Integration examples and best practices
 
 #### Example Implementation
+
 - Working example app demonstrating recorder usage
 - Comprehensive integration test suite covering all features
 - Sample flow JSON files for testing and validation
@@ -98,7 +108,7 @@ The FlowTest SDK reaches version 1.0.0 with all core features implemented and pr
 
 1. ✅ **Step 1**: Flow Data Model - Complete JSON serialization
 2. ✅ **Step 2**: Visual Recording Overlay - Professional UI with hit testing
-3. ✅ **Step 3**: Flow Execution Engine - Full WidgetTester integration  
+3. ✅ **Step 3**: Flow Execution Engine - Full WidgetTester integration
 4. ✅ **Step 4**: Unified Selector System - Single API for widget finding
 5. ✅ **Step 5**: Storage Service - Cross-platform file operations
 6. ✅ **Step 6**: Development Logger - Production-ready logging with ANSI support

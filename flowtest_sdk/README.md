@@ -9,24 +9,28 @@ A comprehensive Flutter SDK for **visual test recording and automated playback**
 ## 🌟 Key Features
 
 ### 🎬 Visual Recording
+
 - **Real-time interaction capture** during development
 - **Smart widget detection** with sophisticated hit testing
 - **Professional UI overlay** with intuitive controls
 - **Cross-platform compatibility** (iOS, Android, Web, Desktop)
 
-### 🔄 Automated Playback  
+### 🔄 Automated Playback
+
 - **JSON-based test flows** for reliable replay
 - **WidgetTester integration** for Flutter integration tests
 - **Comprehensive assertions** with expectation matching
 - **Screenshot capture** on test failures for debugging
 
 ### 🎨 Professional Development Experience
+
 - **ANSI colored console logging** with cross-platform support
 - **Step progress tracking** ([1/5], [2/5] format)
 - **Verbose control** (chatty in dev, quiet in CI)
 - **Error handling** with detailed failure context
 
 ### 💾 Robust Storage
+
 - **Cross-platform file operations** with path_provider
 - **Asset bundling** for test flows in apps
 - **Collision detection** and safe file operations
@@ -41,7 +45,7 @@ A comprehensive Flutter SDK for **visual test recording and automated playback**
 dependencies:
   flutter:
     sdk: flutter
-  path_provider: ^2.1.2  # Required for storage
+  path_provider: ^2.1.2 # Required for storage
 
 dev_dependencies:
   flutter_test:
@@ -87,14 +91,14 @@ void main() {
     // Initialize with professional logging
     final logger = FlowLogger(verbose: true);
     final runner = FlowRunner(logger: logger);
-    
+
     // Load and run your recorded flow
     await runner.runFromAsset(
-      tester, 
+      tester,
       'test_flows/login_flow.json',
       screenshotOnFailure: true,
     );
-    
+
     // Verify final state
     expect(find.text('Welcome!'), findsOneWidget);
   });
@@ -130,9 +134,9 @@ await storage.saveFlow(flow, 'my_custom_login');
 ### Recording a Login Flow
 
 1. **Start Recording**: Tap the blue record button
-2. **Interact Naturally**: 
+2. **Interact Naturally**:
    - Tap email field → Enter "user@example.com"
-   - Tap password field → Enter password  
+   - Tap password field → Enter password
    - Tap login button
 3. **Stop & Export**: Tap red stop, then green export
 4. **Generated JSON**:
@@ -140,15 +144,15 @@ await storage.saveFlow(flow, 'my_custom_login');
 ```json
 {
   "flowId": "login_flow_20250804",
-  "recordedAt": "2025-08-04T10:30:00.000Z", 
+  "recordedAt": "2025-08-04T10:30:00.000Z",
   "steps": [
-    {"action": "tap", "target": "@email_field"},
-    {"action": "input", "target": "input:Email", "value": "user@example.com"},
-    {"action": "tap", "target": "@password_field"}, 
-    {"action": "input", "target": "input:Password", "value": "********"},
-    {"action": "tap", "target": "button:Login"},
-    {"action": "wait", "duration": 2000},
-    {"action": "expect", "target": "text:Welcome", "condition": "exists"}
+    { "action": "tap", "target": "@email_field" },
+    { "action": "input", "target": "input:Email", "value": "user@example.com" },
+    { "action": "tap", "target": "@password_field" },
+    { "action": "input", "target": "input:Password", "value": "********" },
+    { "action": "tap", "target": "button:Login" },
+    { "action": "wait", "duration": 2000 },
+    { "action": "expect", "target": "text:Welcome", "condition": "exists" }
   ]
 }
 ```
@@ -170,13 +174,13 @@ flutter test integration_test/ --screenshot=on-failure
 
 FlowTest uses a unified selector system for maximum reliability:
 
-| Selector Type | Format | Example | Best For |
-|--------------|--------|---------|----------|
-| **Key** | `@keyName` | `@email_field` | Reliable, developer-defined |
-| **Text** | `text:content` | `text:Login` | Buttons, labels |
-| **Button** | `button:text` | `button:Continue` | Interactive buttons |
-| **Input** | `input:label` | `input:Email` | Form fields |
-| **Type** | `type:WidgetType` | `type:ElevatedButton` | Fallback option |
+| Selector Type | Format            | Example               | Best For                    |
+| ------------- | ----------------- | --------------------- | --------------------------- |
+| **Key**       | `@keyName`        | `@email_field`        | Reliable, developer-defined |
+| **Text**      | `text:content`    | `text:Login`          | Buttons, labels             |
+| **Button**    | `button:text`     | `button:Continue`     | Interactive buttons         |
+| **Input**     | `input:label`     | `input:Email`         | Form fields                 |
+| **Type**      | `type:WidgetType` | `type:ElevatedButton` | Fallback option             |
 
 ### Advanced Selector Examples
 
@@ -184,7 +188,7 @@ FlowTest uses a unified selector system for maximum reliability:
 // Complex nested button
 FlowStep.tap(target: 'button:Continue[1]'), // Second "Continue" button
 
-// Case-insensitive text matching  
+// Case-insensitive text matching
 FlowStep.expect(target: 'text:success', condition: ExpectCondition.exists),
 
 // Multiple expectations
@@ -205,7 +209,7 @@ final logger = FlowLogger(
 
 // Manual logging
 logger.info('Starting test suite');
-logger.success('✅ Login flow completed successfully');  
+logger.success('✅ Login flow completed successfully');
 logger.error('❌ Test failed: Widget not found');
 logger.step('▶️ [3/5] Filling login form');
 ```
@@ -272,7 +276,7 @@ flowtest_sdk/
 ```bash
 # Complete validation
 flutter analyze                          # Static analysis
-flutter test flutter_sdk/test/           # Unit tests  
+flutter test flutter_sdk/test/           # Unit tests
 flutter test integration_test/           # Integration tests
 
 # Specific test categories
@@ -285,7 +289,7 @@ flutter test flutter_sdk/test/integration/production_ready_test.dart
 
 ```
 ✅ FlowLogger Integration Tests
-✅ StorageService cross-platform operations  
+✅ StorageService cross-platform operations
 ✅ Production-ready FlowRunner features
 ✅ Asset loading and validation
 ✅ Screenshot capture verification
@@ -310,7 +314,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.32.0'
+          flutter-version: "3.32.0"
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter test
@@ -329,23 +333,26 @@ jobs:
 ### Common Issues
 
 #### "Widget not found" during playback
+
 ```dart
 // Solution: Use more specific selectors
 FlowStep.tap(target: '@login_button'),     // ✅ Good - Key-based
-FlowStep.tap(target: 'text:Login'),        // ⚠️ OK - Text-based  
+FlowStep.tap(target: 'text:Login'),        // ⚠️ OK - Text-based
 FlowStep.tap(target: 'type:ElevatedButton'), // ❌ Avoid - Too generic
 ```
 
 #### Assets not loading in tests
+
 ```yaml
 # Ensure pubspec.yaml includes:
 flutter:
   assets:
     - test_flows/
-    - flutter_sdk/test_flows/  # If using nested structure
+    - flutter_sdk/test_flows/ # If using nested structure
 ```
 
 #### ANSI colors not showing on Windows
+
 ```dart
 // FlowLogger automatically detects terminal support
 final logger = FlowLogger(
@@ -375,23 +382,27 @@ RecorderController.instance.debugPrintWidgetTree = true;
 ## 🏆 Production Ready Features
 
 ### ✅ Cross-Platform Compatibility
+
 - iOS, Android, Web, macOS, Linux, Windows
 - Graceful degradation on limited platforms
 - Platform-specific optimizations
 
 ### ✅ Enterprise Grade Reliability
+
 - Comprehensive error handling with recovery
 - Memory leak prevention
 - Performance monitoring and optimization
 - Thread-safe operations
 
 ### ✅ Developer Experience
+
 - Zero-configuration setup for basic use cases
-- Professional logging with ANSI color support  
+- Professional logging with ANSI color support
 - Intuitive API design with method chaining
 - Extensive documentation and examples
 
 ### ✅ CI/CD Integration
+
 - Quiet mode for automated testing
 - Screenshot capture for failure analysis
 - Compatible with GitHub Actions, Jenkins, etc.
@@ -402,7 +413,7 @@ RecorderController.instance.debugPrintWidgetTree = true;
 **All 7 planned development steps completed:**
 
 1. ✅ **Flow Data Model** - Complete JSON serialization
-2. ✅ **Visual Recording Overlay** - Professional UI with hit testing  
+2. ✅ **Visual Recording Overlay** - Professional UI with hit testing
 3. ✅ **Flow Execution Engine** - Full WidgetTester integration
 4. ✅ **Unified Selector System** - Single API for all widget finding
 5. ✅ **Storage Service** - Cross-platform file operations
