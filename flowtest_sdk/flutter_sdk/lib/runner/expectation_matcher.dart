@@ -42,7 +42,7 @@ class ExpectationMatcher {
         expect(_extractText(finder), contains(exp.value));
         break;
       case ExpectCondition.matchesRegex:
-        final re = RegExp(exp.value ?? '');
+        final re = RegExp(exp.value ?? '', caseSensitive: false);
         expect(re.hasMatch(_extractText(finder)), isTrue);
         break;
     }

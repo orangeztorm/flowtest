@@ -1,6 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
 import '../models/test_flow.dart';
+import '../utils/storage_service.dart';
+
+/// Custom exception for flow parsing operations
+class FlowParseException implements Exception {
+  final String message;
+
+  const FlowParseException(this.message);
+
+  @override
+  String toString() => 'FlowParseException: $message';
+}
 
 /// Loads TestFlow objects from JSON files
 class FlowLoader {
@@ -13,7 +24,7 @@ class FlowLoader {
       final data = json.decode(jsonString) as Map<String, dynamic>;
       return TestFlow.fromJson(data);
     } catch (e) {
-      throw Exception('Failed to load flow from $path: $e');
+      throw FlowParseException('Failed to load flow from $path: $e');
     }
   }
 
@@ -23,8 +34,19 @@ class FlowLoader {
       final data = json.decode(jsonString) as Map<String, dynamic>;
       return TestFlow.fromJson(data);
     } catch (e) {
-      throw Exception('Failed to parse flow JSON: $e');
+      throw FlowParseException('Failed to parse flow JSON: $e');
     }
+  }
+
+  /// Load a TestFlow from app assets (recommended for integration tests)
+  /// This is the most reliable way for integration tests
+  static Future<TestFlow> fromAsset(String assetPath) async {
+    return StorageService.loadFlowFromAsset(assetPath);
+  }
+
+  /// Load from device storage using StorageService
+  static Future<TestFlow> fromStorage(String fileName) async {
+    return StorageService.loadFlow(fileName);
   }
 
   /// Load multiple TestFlow objects from a directory

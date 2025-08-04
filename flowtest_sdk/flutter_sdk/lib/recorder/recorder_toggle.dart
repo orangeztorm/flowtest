@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'dart:io';
 import 'recorder_controller.dart';
+import '../models/test_flow.dart';
+import '../utils/storage_service.dart';
 
 class RecorderToggle extends StatefulWidget {
   const RecorderToggle({super.key});
@@ -64,20 +64,13 @@ class _RecorderToggleState extends State<RecorderToggle> {
   void _exportFlow() async {
     try {
       final flowData = RecorderController.instance.exportToJson();
-      final jsonString = JsonEncoder.withIndent('  ').convert(flowData);
+      final testFlow = TestFlow.fromJson(flowData);
 
-      // Create test_flows directory if it doesn't exist
-      final directory = Directory('test_flows');
-      if (!await directory.exists()) {
-        await directory.create(recursive: true);
-      }
+      // Use StorageService for professional, cross-platform storage
+      final filePath = await StorageService.saveFlow(testFlow);
 
-      // Save the flow file
-      final fileName = 'flow_${DateTime.now().millisecondsSinceEpoch}.json';
-      final file = File('test_flows/$fileName');
-      await file.writeAsString(jsonString);
-
-      _showSnackBar('Flow exported to test_flows/$fileName');
+      _showSnackBar('Flow exported to: ${filePath.split('/').last}');
+      print('Flow exported to: $filePath'); // Log full path for easy access
     } catch (e) {
       _showSnackBar('Failed to export flow: $e');
     }
