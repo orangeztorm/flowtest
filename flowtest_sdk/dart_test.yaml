@@ -3,7 +3,7 @@
 
 tags:
   integration:
-    skip: false   # Declaration only; no behavior change
+    skip: false # Declaration only; no behavior change
     # Use: flutter test --tags integration to run only integration tests
     # Use: flutter test --exclude-tags integration to skip integration tests
 

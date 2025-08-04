@@ -435,7 +435,7 @@ flutter test
 # Run only unit tests
 flutter test --exclude-tags integration
 
-# Run only integration tests  
+# Run only integration tests
 flutter test --tags integration
 
 # Run integration tests on specific device
@@ -453,7 +453,7 @@ The SDK uses `dart_test.yaml` for test configuration:
 # dart_test.yaml
 tags:
   integration:
-    skip: false   # Declaration only; no behavior change
+    skip: false # Declaration only; no behavior change
 
 # Usage examples:
 # flutter test --tags integration      # Run only integration tests
@@ -499,7 +499,7 @@ Failed tests automatically capture:
 The SDK uses a **defense-in-depth** testing strategy:
 
 1. **Layer 1**: Dart environment detection
-2. **Layer 2**: Platform channel timeout protection  
+2. **Layer 2**: Platform channel timeout protection
 3. **Layer 3**: Integration test binding configuration
 
 This ensures tests never hang in any environment (development, CI/CD, or production).
@@ -519,9 +519,9 @@ void main() {
       // Load and execute a recorded flow
       final flow = await FlowLoader.fromAsset('test_flows/login_flow.json');
       final runner = FlowRunner(tester, verbose: true);
-      
+
       await runner.run(flow);
-      
+
       // Screenshots automatically captured on failure
       expect(find.text('Success'), findsOneWidget);
     }, tags: ['integration']);
