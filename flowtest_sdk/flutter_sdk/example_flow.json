@@ -1,0 +1,48 @@
+{
+  "flowId": "login_flow",
+  "steps": [
+    {
+      "action": "tap",
+      "target": "@emailField",
+      "expects": [
+        { "target": "@emailField", "condition": "isEnabled" }
+      ]
+    },
+    {
+      "action": "input",
+      "target": "@emailField",
+      "value": "test@example.com"
+    },
+    {
+      "action": "tap",
+      "target": "@passwordField"
+    },
+    {
+      "action": "input",
+      "target": "@passwordField",
+      "value": "password123"
+    },
+    {
+      "action": "tap",
+      "target": "@submitButton",
+      "expects": [
+        { "target": "@submitButton", "condition": "isDisabled" },
+        { "target": "type:CircularProgressIndicator", "condition": "isVisible" },
+        { "target": "@errorBanner", "condition": "notExists" }
+      ]
+    },
+    {
+      "action": "wait",
+      "target": "type:CircularProgressIndicator",
+      "value": "disappear"
+    },
+    {
+      "action": "expect",
+      "target": "text:Welcome",
+      "expects": [
+        { "target": "text:Welcome", "condition": "isVisible" },
+        { "target": "@logoutButton", "condition": "exists" }
+      ]
+    }
+  ]
+} 
