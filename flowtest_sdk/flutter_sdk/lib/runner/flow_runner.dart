@@ -15,6 +15,9 @@ import 'expectation_matcher.dart';
 class FlowRunner {
   final WidgetTester tester;
 
+  // Default timeout for conditional waits - prevents infinite hangs on CI
+  static const int _defaultWaitTimeoutMs = 5000;
+
   FlowRunner(this.tester, {bool verbose = kDebugMode}) {
     FlowLogger.verbose = verbose;
   }
@@ -131,51 +134,69 @@ class FlowRunner {
 
   /// Execute a single flow step
   Future<void> _executeStep(FlowStep step) async {
-    final finder = TargetResolver.resolve(step.target);
-
-    // Auto-scroll for interactive actions
+    // --- FIX 1: Conditionally resolve the finder ---
+    // Only resolve a finder for actions that interact with a widget.
+    // `wait` steps might not have a resolvable target.
+    Finder? finder;
     if ({
       FlowAction.tap,
       FlowAction.longPress,
+      FlowAction.scroll,
       FlowAction.input,
+      FlowAction.expect,
     }.contains(step.action)) {
+      finder = TargetResolver.resolve(step.target);
+    }
+
+    // Auto-scroll only when we have a finder and an interactive action
+    if (finder != null &&
+        {
+          FlowAction.tap,
+          FlowAction.longPress,
+          FlowAction.input,
+        }.contains(step.action)) {
       await _scrollIntoView(finder);
     }
 
     switch (step.action) {
       case FlowAction.tap:
-        await tester.tap(finder);
+        await tester.tap(finder!);
         break;
       case FlowAction.longPress:
-        await tester.longPress(finder);
+        await tester.longPress(finder!);
         break;
       case FlowAction.scroll:
         final delta = double.tryParse(step.value ?? '0') ?? 0.0;
-        await tester.drag(finder, Offset(0, -delta));
+        await tester.drag(finder!, Offset(0, -delta));
         break;
       case FlowAction.input:
-        await tester.enterText(finder, step.value ?? '');
+        await tester.enterText(finder!, step.value ?? '');
         break;
       case FlowAction.wait:
         if (step.expects?.isNotEmpty ?? false) {
+          // This is a conditional/dynamic wait - the GOOD kind!
           await _waitUntil(
-            // step.expects! as List<Expectation>,
-            step.expects ?? [],
-            timeoutMs: int.tryParse(step.value ?? '5000') ?? 5000,
+            step.expects!,
+            timeoutMs:
+                int.tryParse(step.value ?? '$_defaultWaitTimeoutMs') ??
+                _defaultWaitTimeoutMs,
           );
         } else {
-          await tester.pump(
-            Duration(milliseconds: int.tryParse(step.value ?? '0') ?? 0),
-          );
+          // This is a fixed-duration wait - only use when absolutely necessary
+          final ms = int.tryParse(step.value ?? '0') ?? 0;
+          await tester.pump(Duration(milliseconds: ms));
         }
-        break;
+        // --- FIX 2: Return early to avoid conflicting pumpAndSettle ---
+        return;
       case FlowAction.expect:
-        // handled via chained expects; nothing to do here
+        // Standalone 'expect' steps are handled by the chained 'expects' logic
+        // in the main `run` method. Nothing to do here.
         break;
     }
 
-    // Ensure UI has settled before next step
-    await tester.pumpAndSettle();
+    // --- FIX 3: Use a bounded settle to avoid infinite loops from animations ---
+    // This runs for all actions except 'wait'.
+    await tester.pumpAndSettle(const Duration(seconds: 10));
   }
 
   /// Run a single step (useful for debugging)

@@ -24,6 +24,7 @@ void main() {
         expect(flow.steps, isNotEmpty);
         print('Successfully loaded flow: ${flow.flowId}');
         print('Flow has ${flow.steps.length} steps');
+        print('flow ${flow.steps}');
 
         // Create and run the flow
         final runner = FlowRunner(tester);

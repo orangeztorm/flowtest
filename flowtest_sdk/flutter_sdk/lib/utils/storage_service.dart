@@ -9,12 +9,23 @@ import '../models/test_flow.dart';
 class StorageService {
   static const String _flowsDirectoryName = 'test_flows';
 
+  /// Safe directory getter that works in all Flutter test environments
+  /// Falls back to temp directory when platform channels are unavailable
+  static Future<Directory> _safeDocsDir() async {
+    try {
+      return await getApplicationDocumentsDirectory(); // Real device / integration-test
+    } catch (_) {
+      // Widget-test or any env without platform channels
+      return Directory.systemTemp.createTempSync('flowtest_');
+    }
+  }
+
   /// Save a test flow to device storage
   /// Uses platform-appropriate directories via path_provider
   static Future<String> saveFlow(TestFlow flow) async {
     try {
-      // Get a safe directory provided by the OS
-      final directory = await getApplicationDocumentsDirectory();
+      // Get a safe directory that works in all test environments
+      final directory = await _safeDocsDir();
       final flowsDir = Directory('${directory.path}/$_flowsDirectoryName');
 
       // Create the subdirectory if it doesn't exist
@@ -45,7 +56,7 @@ class StorageService {
   /// Save a test flow with a specific filename
   static Future<String> saveFlowWithName(TestFlow flow, String fileName) async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
+      final directory = await _safeDocsDir();
       final flowsDir = Directory('${directory.path}/$_flowsDirectoryName');
 
       if (!await flowsDir.exists()) {
