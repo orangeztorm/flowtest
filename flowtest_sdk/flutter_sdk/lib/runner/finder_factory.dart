@@ -1,47 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class TargetResolver {
-  const TargetResolver._();
-
-  static Finder resolve(String target) {
-    // 1. Key-based targeting
+/// Factory for creating Flutter test Finders from target strings
+class FinderFactory {
+  /// Convert a target string to a Finder
+  ///
+  /// Supported formats:
+  /// - @keyName -> find.byKey(ValueKey('keyName'))
+  /// - text:Hello -> find.text('Hello')
+  /// - button:Login -> find.widgetWithText(ElevatedButton, 'Login')
+  /// - input:Email -> find TextField/TextFormField by label/hint
+  /// - type:IconButton -> find.byType(IconButton)
+  static Finder fromTarget(String target) {
+    // @myKey -> find.byKey(ValueKey('myKey'))
     if (target.startsWith('@')) {
       return find.byKey(ValueKey(target.substring(1)));
     }
 
-    // 2. Text-based targeting
+    // text:Submit -> find.text('Submit')
     if (target.startsWith('text:')) {
       return find.text(target.substring(5));
     }
 
-    // 3. General-purpose Button targeting (with index support)
+    // button:Login -> find.widgetWithText(ElevatedButton, 'Login')
     if (target.startsWith('button:')) {
-      String lookup = target.substring(7);
-      int? index;
-      if (lookup.contains('[') && lookup.endsWith(']')) {
-        final parts = lookup.split('[');
-        lookup = parts[0];
-        index = int.tryParse(parts[1].replaceAll(']', ''));
-      }
-      var finder = find.byWidgetPredicate((widget) {
-        // ButtonStyleButton covers ElevatedButton, TextButton, OutlinedButton
-        if (widget is ButtonStyleButton && widget.child is Text) {
-          return (widget.child as Text).data == lookup;
-        }
-        // MaterialButton covers FlatButton, RaisedButton, etc (legacy)
-        if (widget is MaterialButton && widget.child is Text) {
-          return (widget.child as Text).data == lookup;
-        }
-        return false;
-      });
-      if (index != null) {
-        return finder.at(index);
-      }
-      return finder;
+      return find.widgetWithText(ElevatedButton, target.substring(7));
     }
 
-    // 4. Input-based targeting
+    // input:Email -> predicate matching TextField/TextFormField by label/hint
     if (target.startsWith('input:')) {
       final lookup = target.substring(6);
       return find.byWidgetPredicate((w) {
@@ -49,12 +35,13 @@ class TargetResolver {
           return w.decoration?.hintText == lookup ||
               w.decoration?.labelText == lookup;
         }
-        // TextFormField does not expose decoration directly; skip for now
+        // For TextFormField, we'll use a simpler approach for now
+        // since the decoration property might not be directly accessible
         return false;
       });
     }
 
-    // 5. Type-based targeting
+    // type:IconButton -> find.byType(IconButton)
     if (target.startsWith('type:')) {
       return find.byType(_typeFromName(target.substring(5)));
     }
@@ -62,6 +49,11 @@ class TargetResolver {
     throw Exception('Unsupported target format: $target');
   }
 
+  /// Convert a widget type name to a Type
+  ///
+  /// This is a manual mapping for common widget types.
+  /// In a production system, you might want to generate this mapping
+  /// or use a more sophisticated reflection approach.
   static Type _typeFromName(String name) {
     switch (name) {
       case 'TextButton':
