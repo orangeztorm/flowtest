@@ -10,7 +10,11 @@ flutter_sdk/
 ├── lib/
 │   ├── recorder/              # RecorderOverlay + RecorderController
 │   │   ├── recorder_overlay.dart
-│   │   └── recorder_controller.dart
+│   │   ├── recorder_controller.dart
+│   │   ├── recorder_toggle.dart
+│   │   ├── recorder_widget_utils.dart
+│   │   ├── recorder.dart
+│   │   └── HIT_TESTING.md
 │   ├── runner/                # FlowRunner that executes flow JSON
 │   │   ├── flow_runner.dart
 │   │   └── target_resolver.dart
@@ -42,11 +46,23 @@ flutter_sdk/
 - ENHANCED: Added new actions (scroll, longPress, wait) and comprehensive expectation conditions
 - REORGANIZED: Split into clean model structure (enums.dart, expectation.dart, flow_step.dart, test_flow.dart)
 
-🔹 Step 2: Build RecorderOverlay (for dev mode only)
+✅ Step 2: Build RecorderOverlay (for dev mode only)
 - Wrap app in overlay
 - Capture taps, input
 - Save step as FlowStep
 - Export to JSON
+- COMPLETED: Created FlowRecorderOverlay with tap and text input recording
+- COMPLETED: Added RecorderController singleton for managing recording state
+- COMPLETED: Added RecorderToggle widget for start/stop/export controls
+- COMPLETED: Added RecorderUtils for widget target extraction
+- COMPLETED: Added example app demonstrating usage
+- COMPLETED: Added export functionality to JSON files in test_flows/ directory
+- ENHANCED: Implemented robust hit testing with Element tree traversal
+- ENHANCED: Added overlay filtering to exclude recorder UI components
+- ENHANCED: Added bounds checking for accurate widget detection
+- ENHANCED: Added performance monitoring with Timeline.timeSync
+- ENHANCED: Improved text input capture from widget controllers
+- ENHANCED: Added comprehensive documentation (HIT_TESTING.md, README.md)
 
 🔹 Step 3: Build FlowRunner
 - Load flow from file
