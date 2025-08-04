@@ -24,17 +24,11 @@ class TargetResolver {
         lookup = parts[0];
         index = int.tryParse(parts[1].replaceAll(']', ''));
       }
-      var finder = find.byWidgetPredicate((widget) {
-        // ButtonStyleButton covers ElevatedButton, TextButton, OutlinedButton
-        if (widget is ButtonStyleButton && widget.child is Text) {
-          return (widget.child as Text).data == lookup;
-        }
-        // MaterialButton covers FlatButton, RaisedButton, etc (legacy)
-        if (widget is MaterialButton && widget.child is Text) {
-          return (widget.child as Text).data == lookup;
-        }
-        return false;
-      });
+      var finder = find.byWidgetPredicate(
+        (widget) =>
+            (widget is ButtonStyleButton || widget is MaterialButton) &&
+            _descTextEquals(widget, lookup),
+      );
       if (index != null) {
         return finder.at(index);
       }
@@ -49,7 +43,10 @@ class TargetResolver {
           return w.decoration?.hintText == lookup ||
               w.decoration?.labelText == lookup;
         }
-        // TextFormField does not expose decoration directly; skip for now
+        if (w is TextFormField) {
+          final dec = (w as dynamic).decoration as InputDecoration?;
+          return dec?.hintText == lookup || dec?.labelText == lookup;
+        }
         return false;
       });
     }
@@ -62,42 +59,42 @@ class TargetResolver {
     throw Exception('Unsupported target format: $target');
   }
 
-  static Type _typeFromName(String name) {
-    switch (name) {
-      case 'TextButton':
-        return TextButton;
-      case 'ElevatedButton':
-        return ElevatedButton;
-      case 'OutlinedButton':
-        return OutlinedButton;
-      case 'IconButton':
-        return IconButton;
-      case 'TextField':
-        return TextField;
-      case 'TextFormField':
-        return TextFormField;
-      case 'Text':
-        return Text;
-      case 'Container':
-        return Container;
-      case 'Column':
-        return Column;
-      case 'Row':
-        return Row;
-      case 'ListView':
-        return ListView;
-      case 'Scaffold':
-        return Scaffold;
-      case 'AppBar':
-        return AppBar;
-      case 'Card':
-        return Card;
-      case 'InkWell':
-        return InkWell;
-      case 'GestureDetector':
-        return GestureDetector;
-      default:
-        throw Exception('Unknown widget type: $name');
+  /// Recursively check if a widget or its descendants contain text
+  static bool _descTextEquals(Widget w, String label) {
+    if (w is Text && w.data == label) return true;
+    if (w is SingleChildRenderObjectWidget && w.child != null) {
+      return _descTextEquals(w.child!, label);
     }
+    if (w is MultiChildRenderObjectWidget) {
+      return w.children.any((c) => _descTextEquals(c, label));
+    }
+    return false;
+  }
+
+  static const Map<String, Type> _typeMap = {
+    'TextButton': TextButton,
+    'ElevatedButton': ElevatedButton,
+    'OutlinedButton': OutlinedButton,
+    'IconButton': IconButton,
+    'TextField': TextField,
+    'TextFormField': TextFormField,
+    'Text': Text,
+    'Container': Container,
+    'Column': Column,
+    'Row': Row,
+    'ListView': ListView,
+    'Scaffold': Scaffold,
+    'AppBar': AppBar,
+    'Card': Card,
+    'InkWell': InkWell,
+    'GestureDetector': GestureDetector,
+  };
+
+  static Type _typeFromName(String name) {
+    final type = _typeMap[name];
+    if (type == null) {
+      throw Exception('Unknown widget type: $name');
+    }
+    return type;
   }
 }

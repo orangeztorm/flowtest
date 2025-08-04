@@ -3,7 +3,7 @@ import '../models/flow_step.dart';
 import '../models/test_flow.dart';
 import '../models/enums.dart';
 import '../models/expectation.dart';
-import 'finder_factory.dart';
+import 'target_resolver.dart';
 import 'expectation_matcher.dart';
 
 /// Executes recorded test flows using WidgetTester
@@ -65,7 +65,7 @@ class FlowRunner {
 
   /// Execute a single flow step
   Future<void> _executeStep(FlowStep step) async {
-    final finder = FinderFactory.fromTarget(step.target);
+    final finder = TargetResolver.resolve(step.target);
 
     // Auto-scroll for interactive actions
     if ({

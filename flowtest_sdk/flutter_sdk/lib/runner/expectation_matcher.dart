@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../models/expectation.dart';
 import '../models/enums.dart';
-import 'finder_factory.dart';
+import 'target_resolver.dart';
 
 /// Matches expectations against the current widget state
 class ExpectationMatcher {
@@ -12,7 +12,7 @@ class ExpectationMatcher {
 
   /// Match a single expectation
   Future<void> match(Expectation exp) async {
-    final finder = FinderFactory.fromTarget(exp.target);
+    final finder = TargetResolver.resolve(exp.target);
 
     switch (exp.condition) {
       case ExpectCondition.isVisible:
@@ -67,7 +67,6 @@ class ExpectationMatcher {
       return widget.enabled ?? true;
     }
     if (widget is TextFormField) {
-      // return widget.enabled ?? true;
       return widget.enabled;
     }
     return true; // assume enabled if we don't know how to check yet
