@@ -46,7 +46,11 @@ class FlowLoader {
 
   /// Load from device storage using StorageService
   static Future<TestFlow> fromStorage(String fileName) async {
-    return StorageService.loadFlow(fileName);
+    final flow = await StorageService.loadFlow(fileName);
+    if (flow == null) {
+      throw Exception('Flow not found: $fileName');
+    }
+    return flow;
   }
 
   /// Load multiple TestFlow objects from a directory

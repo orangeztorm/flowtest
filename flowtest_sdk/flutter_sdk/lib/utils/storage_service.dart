@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import '../models/test_flow.dart';
@@ -8,16 +9,27 @@ import '../models/test_flow.dart';
 /// Handles cross-platform file operations safely
 class StorageService {
   static const String _flowsDirectoryName = 'test_flows';
+  static const Duration _timeout = Duration(
+    seconds: 1,
+  ); // Timeout for platform channel calls
+  static Directory?
+  _tempDir; // Cache temp directory for widget test environments
 
   /// Safe directory getter that works in all Flutter test environments
-  /// Falls back to temp directory when platform channels are unavailable
+  /// Uses timeout to detect when platform channels are unavailable
   static Future<Directory> _safeDocsDir() async {
     try {
-      return await getApplicationDocumentsDirectory(); // Real device / integration-test
+      // If the platform channel responds within the timeout we use it.
+      return await getApplicationDocumentsDirectory().timeout(_timeout);
+    } on TimeoutException catch (_) {
+      // Fall through to the temp-dir fallback below
     } catch (_) {
-      // Widget-test or any env without platform channels
-      return Directory.systemTemp.createTempSync('flowtest_');
+      // MissingPluginException etc. – also fall through
     }
+
+    // Widget-test or other environment without platform channels
+    _tempDir ??= Directory.systemTemp.createTempSync('flowtest_');
+    return _tempDir!;
   }
 
   /// Save a test flow to device storage
@@ -81,14 +93,17 @@ class StorageService {
     }
   }
 
-  /// Load a test flow from device storage by filename
-  static Future<TestFlow> loadFlow(String fileName) async {
+  /// Load a test flow from storage
+  static Future<TestFlow?> loadFlow(String fileName) async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/$_flowsDirectoryName/$fileName');
+      final directory = await _safeDocsDir();
+      final flowsDir = Directory('${directory.path}/$_flowsDirectoryName');
+
+      final safeName = fileName.endsWith('.json') ? fileName : '$fileName.json';
+      final file = File('${flowsDir.path}/$safeName');
 
       if (!await file.exists()) {
-        throw StorageException('Flow file not found: $fileName');
+        return null;
       }
 
       final jsonString = await file.readAsString();
@@ -114,7 +129,7 @@ class StorageService {
   /// List all saved flow files in device storage
   static Future<List<String>> listSavedFlows() async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
+      final directory = await _safeDocsDir();
       final flowsDir = Directory('${directory.path}/$_flowsDirectoryName');
 
       if (!await flowsDir.exists()) {
@@ -136,7 +151,7 @@ class StorageService {
   /// Get the full path to the flows directory
   static Future<String> getFlowsDirectoryPath() async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
+      final directory = await _safeDocsDir();
       return '${directory.path}/$_flowsDirectoryName';
     } catch (e) {
       throw StorageException('Failed to get flows directory path: $e');
@@ -146,7 +161,7 @@ class StorageService {
   /// Delete a saved flow file
   static Future<bool> deleteFlow(String fileName) async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
+      final directory = await _safeDocsDir();
       final file = File('${directory.path}/$_flowsDirectoryName/$fileName');
 
       if (await file.exists()) {

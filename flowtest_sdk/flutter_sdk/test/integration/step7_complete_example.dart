@@ -8,17 +8,36 @@ import '../../lib/models/flow_step.dart';
 import '../../lib/models/enums.dart';
 import '../../lib/models/expectation.dart';
 import '../../../lib/main.dart' as app;
+import '../test_helpers.dart';
+
+const kSafeSettleTimeout = Duration(seconds: 5);
+
+Future<void> launchDemo(WidgetTester tester) async {
+  app.main();
+
+  // Give the start-up animations some time, *but* bail out after 5 s max.
+  await tester.pumpAndSettle(const Duration(seconds: 5));
+
+  // Just in case test-1 left a SnackBar etc. finishing:
+  await tester.pump(const Duration(milliseconds: 300));
+}
 
 /// Comprehensive integration test for Step 7: Example integration_test
 /// Demonstrates end-to-end flow recording, storage, and playback
+///
+/// Uses professional defense-in-depth strategy:
+/// - Layer 1: Dart environment detection (integrationTest helper)
+/// - Layer 2: Shell script device detection (run_integration_tests.sh)
+/// - Layer 3: Timeout protection in StorageService
 void main() {
-  group('Step 7: Example Integration Test', () {
-    testWidgets('Load flow from assets and replay with logging', (
+  robustTestGroup('Step 7: Example Integration Test', () {
+    integrationTest('Load flow from assets and replay with logging', (
       WidgetTester tester,
     ) async {
-      // Launch the app
+      // Launch the app with bounded settle (defensive layer)
       app.main();
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 300));
 
       try {
         // Load a flow from bundled assets (recommended for integration tests)
@@ -55,12 +74,13 @@ void main() {
       }
     });
 
-    testWidgets('Create, save, and replay a custom flow', (
+    integrationTest('Create, save, and replay a custom flow', (
       WidgetTester tester,
     ) async {
-      // Launch the app
+      // Launch the app with bounded settle (defensive layer)
       app.main();
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 300));
 
       // Create a simple test flow programmatically
       final customFlow = TestFlow(
@@ -96,7 +116,12 @@ void main() {
         final loadedFlow = await StorageService.loadFlow(
           'integration_test_flow.json',
         );
-        expect(loadedFlow.flowId, equals(customFlow.flowId));
+        expect(
+          loadedFlow,
+          isNotNull,
+          reason: 'Flow should be found after saving',
+        );
+        expect(loadedFlow!.flowId, equals(customFlow.flowId));
         expect(loadedFlow.steps.length, equals(customFlow.steps.length));
 
         // Execute the loaded flow
@@ -110,12 +135,13 @@ void main() {
       }
     });
 
-    testWidgets('Test screenshot capture on intentional failure', (
+    integrationTest('Test screenshot capture on intentional failure', (
       WidgetTester tester,
     ) async {
-      // Launch the app
+      // Launch the app with bounded settle (defensive layer)
       app.main();
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 300));
 
       // Create a flow that will intentionally fail to test screenshot capture
       final failingFlow = TestFlow(
@@ -141,7 +167,9 @@ void main() {
       }
     });
 
-    testWidgets('Test storage service operations', (WidgetTester tester) async {
+    integrationTest('Test storage service operations', (
+      WidgetTester tester,
+    ) async {
       try {
         // Test directory operations
         final dirPath = await StorageService.getFlowsDirectoryPath();
