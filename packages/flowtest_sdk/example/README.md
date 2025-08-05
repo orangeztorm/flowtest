@@ -5,7 +5,9 @@ This directory contains example applications demonstrating how to use the FlowTe
 ## Current Examples
 
 ### basic_example (main.dart)
+
 A simple Flutter app wrapped with `FlowRecorderOverlay` to demonstrate:
+
 - Basic SDK integration
 - Recording setup during development
 - Simple UI interactions for testing
@@ -27,6 +29,7 @@ flutter run
 ## Future Examples
 
 This directory is prepared for additional demo applications such as:
+
 - Weather app with API integration
 - E-commerce flow examples
 - Form validation scenarios

@@ -4,7 +4,7 @@ import 'package:flowtest_sdk/flowtest_sdk.dart';
 void main() {
   runApp(
     FlowRecorderOverlay(
-      enabled: kDebugMode,   // only show REC badge during dev
+      enabled: kDebugMode, // only show REC badge during dev
       child: const MyApp(),
     ),
   );
