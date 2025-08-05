@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../lib/utils/flow_logger.dart';
 import '../../lib/runner/flow_runner.dart';
 import '../../lib/runner/flow_loader.dart';
-import '../../../lib/main.dart' as app;
+import 'package:flowtest_sdk/main.dart' as app;
 
 void main() {
   group('FlowLogger Integration Tests', () {

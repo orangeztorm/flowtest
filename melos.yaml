@@ -1,0 +1,15 @@
+# melos.yaml  (at repo root)
+name: flowtest
+
+# Globs that match every package directory in the workspace.
+# Melos scans these for pubspec.yaml files.
+packages:
+  - packages/**            # flowtest_sdk lives here
+  - cli/**                 # later: flowtest_cli
+  - examples/**            # demo apps (weather_app, etc.)
+
+# Optional scripts you can invoke via `melos run <name>`
+scripts:
+  tests: |
+    melos exec -c 1 -- \
+      flutter test

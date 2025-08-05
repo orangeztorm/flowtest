@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import '../lib/recorder/recorder.dart';
+import 'package:flowtest_sdk/flowtest_sdk.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    FlowRecorderOverlay(
+      enabled: kDebugMode,   // only show REC badge during dev
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

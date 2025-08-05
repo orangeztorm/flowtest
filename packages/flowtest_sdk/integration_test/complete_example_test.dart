@@ -4,16 +4,15 @@ import 'package:integration_test/integration_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collection/collection.dart';
 
-import '../../lib/utils/flow_logger.dart';
-import '../../lib/runner/flow_runner.dart';
-import '../../lib/runner/flow_loader.dart';
-import '../../lib/utils/storage_service.dart';
-import '../../lib/models/test_flow.dart';
-import '../../lib/models/flow_step.dart';
-import '../../lib/models/enums.dart';
-import '../../lib/models/expectation.dart';
-import '../../../lib/main.dart' as app;
-import '../test_helpers.dart';
+import 'package:flowtest_sdk/utils/flow_logger.dart';
+import 'package:flowtest_sdk/runner/runner.dart';
+import 'package:flowtest_sdk/utils/storage_service.dart';
+import 'package:flowtest_sdk/models/test_flow.dart';
+import 'package:flowtest_sdk/models/flow_step.dart';
+import 'package:flowtest_sdk/models/enums.dart';
+import 'package:flowtest_sdk/models/expectation.dart';
+import 'package:flowtest_sdk/main.dart' as app;
+import '../test/test_helpers.dart';
 
 const kSafeSettleTimeout = Duration(seconds: 5);
 

@@ -4,7 +4,7 @@ import '../../lib/runner/flow_runner.dart';
 import '../../lib/models/test_flow.dart';
 import '../../lib/models/flow_step.dart';
 import '../../lib/models/enums.dart';
-import '../../../lib/main.dart' as app;
+import 'package:flowtest_sdk/main.dart' as app;
 
 void main() {
   group('Production-Ready FlowRunner Tests', () {

@@ -34,7 +34,7 @@
 /// ```
 ///
 /// See the README.md for complete documentation and examples.
-library flowtest_sdk;
+library;
 
 // Core Models - Data structures for flows and steps
 export 'models/test_flow.dart';
