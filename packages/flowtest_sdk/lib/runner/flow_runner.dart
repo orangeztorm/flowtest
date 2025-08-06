@@ -134,9 +134,8 @@ class FlowRunner {
 
   /// Execute a single flow step
   Future<void> _executeStep(FlowStep step) async {
-    // --- FIX 1: Conditionally resolve the finder ---
-    // Only resolve a finder for actions that interact with a widget.
-    // `wait` steps might not have a resolvable target.
+    /// Only resolve a finder for actions that interact with a widget.
+    /// `wait` steps might not have a resolvable target.
     Finder? finder;
     if ({
       FlowAction.tap,
@@ -182,11 +181,12 @@ class FlowRunner {
                 _defaultWaitTimeoutMs,
           );
         } else {
-          // This is a fixed-duration wait - only use when absolutely necessary
+          /// This is a fixed-duration wait - only use when absolutely necessary
           final ms = int.tryParse(step.value ?? '0') ?? 0;
           await tester.pump(Duration(milliseconds: ms));
         }
-        // --- FIX 2: Return early to avoid conflicting pumpAndSettle ---
+
+        /// Return early to avoid conflicting pumpAndSettle
         return;
       case FlowAction.expect:
         // Standalone 'expect' steps are handled by the chained 'expects' logic
@@ -194,8 +194,8 @@ class FlowRunner {
         break;
     }
 
-    // --- FIX 3: Use a bounded settle to avoid infinite loops from animations ---
-    // This runs for all actions except 'wait'.
+    /// Use a bounded settle to avoid infinite loops from animations.
+    /// This runs for all actions except 'wait'.
     await tester.pumpAndSettle(const Duration(seconds: 10));
   }
 

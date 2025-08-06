@@ -1,3 +1,4 @@
+import 'package:flowtest_sdk/flowtest_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/dependency_injection/injection_container.dart';
@@ -90,7 +91,10 @@ class WeatherApp extends StatelessWidget {
       ),
 
       // Set the home page
-      home: const WeatherPage(),
+      home: FlowRecorderOverlay(
+        enabled: kDebugMode,
+        child: const WeatherPage(),
+      ),
     );
   }
 }
