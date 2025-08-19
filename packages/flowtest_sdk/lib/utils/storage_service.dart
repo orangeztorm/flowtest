@@ -6,6 +6,21 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import '../models/test_flow.dart';
 
+/// Represents a flow file in storage
+class FlowFile {
+  final String name; // no extension
+  final String path; // absolute file path
+  final DateTime modified;
+  final int size;
+  
+  FlowFile({
+    required this.name,
+    required this.path,
+    required this.modified,
+    required this.size,
+  });
+}
+
 /// Professional storage service for saving and loading test flows
 /// Handles cross-platform file operations safely
 class StorageService {
@@ -159,13 +174,22 @@ class StorageService {
     }
   }
 
-  /// Delete a saved flow file
-  static Future<bool> deleteFlow(String fileName) async {
+  /// Delete a saved flow file by filename or full path
+  static Future<bool> deleteFlow(String fileNameOrPath) async {
     try {
-      final directory = await _safeDocsDir();
-      final file = File(
-        path.join(directory.path, _flowsDirectoryName, fileName),
-      );
+      File file;
+      
+      // Check if it's a full path or just filename
+      if (fileNameOrPath.contains(path.separator)) {
+        // Full path
+        file = File(fileNameOrPath);
+      } else {
+        // Just filename
+        final directory = await _safeDocsDir();
+        file = File(
+          path.join(directory.path, _flowsDirectoryName, fileNameOrPath),
+        );
+      }
 
       if (await file.exists()) {
         await file.delete();
@@ -173,7 +197,7 @@ class StorageService {
       }
       return false;
     } catch (e) {
-      throw StorageException('Failed to delete flow $fileName: $e');
+      throw StorageException('Failed to delete flow $fileNameOrPath: $e');
     }
   }
 
@@ -186,6 +210,62 @@ class StorageService {
       // Ignore cleanup errors
     }
   }
+
+  /// List all flow files with metadata
+  static Future<List<FlowFile>> listFlows() async {
+    try {
+      final directory = await _safeDocsDir();
+      final flowsDir = Directory('${directory.path}/$_flowsDirectoryName');
+
+      if (!await flowsDir.exists()) {
+        return [];
+      }
+
+      final items = <FlowFile>[];
+      await for (final ent in flowsDir.list(followLinks: false)) {
+        if (ent is File && ent.path.endsWith('.json')) {
+          final st = await ent.stat();
+          items.add(FlowFile(
+            name: path.basenameWithoutExtension(ent.path),
+            path: ent.path,
+            modified: st.modified,
+            size: st.size,
+          ));
+        }
+      }
+      items.sort((a, b) => b.modified.compareTo(a.modified));
+      return items;
+    } catch (e) {
+      throw StorageException('Failed to list flows: $e');
+    }
+  }
+
+  /// Read flow JSON from file
+  static Future<String> readFlowJson(String filePath) async {
+    try {
+      return await File(filePath).readAsString();
+    } catch (e) {
+      throw StorageException('Failed to read flow JSON: $e');
+    }
+  }
+
+  /// Rename a flow file
+  static Future<void> renameFlow(String oldPath, String newName) async {
+    try {
+      final directory = await _safeDocsDir();
+      final flowsDir = Directory('${directory.path}/$_flowsDirectoryName');
+      final newPath = path.join(flowsDir.path, '${_sanitize(newName)}.json');
+      await File(oldPath).rename(newPath);
+    } catch (e) {
+      throw StorageException('Failed to rename flow: $e');
+    }
+  }
+
+
+
+  /// Sanitize filename for safe storage
+  static String _sanitize(String s) => 
+      s.replaceAll(RegExp(r'[^a-zA-Z0-9_\- ]'), '_').trim();
 }
 
 /// Custom exception for storage operations

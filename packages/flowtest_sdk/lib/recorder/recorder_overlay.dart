@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../models/enums.dart';
 import 'recorder_controller.dart';
 import 'recorder_widget_utils.dart';
+import 'flow_manager_sheet.dart';
+import 'bloc/flow_manager_bloc.dart';
 
 class FlowRecorderOverlay extends StatefulWidget {
   final bool enabled;
@@ -371,9 +374,42 @@ class _FlowRecorderOverlayState extends State<FlowRecorderOverlay>
       RecorderController.instance.stopRecording();
       _showRecordingStopped();
     } else {
-      RecorderController.instance.startRecording();
-      _showRecordingStarted();
+      _showRecordingConfirmation();
     }
+  }
+
+  void _showRecordingConfirmation() {
+    showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: Text(
+          'Start Recording?',
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        ),
+        content: Text(
+          'Do you want to start recording a new flow? This will clear any existing recorded steps.',
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+              RecorderController.instance.startRecording();
+              _showRecordingStarted();
+            },
+            child: const Text('Start Recording'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showRecordingStarted() {
@@ -508,9 +544,19 @@ class _FlowRecorderOverlayState extends State<FlowRecorderOverlay>
                   onPanStart: _onDragStart,
                   onPanUpdate: (details) => _onDragUpdate(details, canvasSize),
                   onPanEnd: (details) => _onDragEnd(details, canvasSize),
-                  onLongPress: () {
+                  onLongPress: () async {
                     HapticFeedback.heavyImpact();
-                    _exportFlow();
+                    await showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      useSafeArea: true,
+                      builder: (_) => BlocProvider(
+                        create: (context) => FlowManagerBloc(),
+                        child: FlowManagerSheet(
+                          onClose: () => Navigator.of(context).maybePop(),
+                        ),
+                      ),
+                    );
                   },
                 ),
               ),

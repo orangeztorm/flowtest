@@ -1,8 +1,33 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'recorder/run_on_next_launch.dart';
+import 'runner/flow_replayer.dart';
+import 'models/test_flow.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Check for pending replay on app start
+  await _maybeAutoReplay();
+
   runApp(const FlowTestDemoApp());
 }
+
+/// Check if there's a pending flow replay and execute it
+Future<void> _maybeAutoReplay() async {
+  try {
+    final pending = await getPendingReplay();
+    if (pending == null) return;
+
+    // Store the pending replay data to be used after the app is built
+    _pendingReplayData = pending;
+  } catch (e) {
+    debugPrint('Auto-replay setup failed: $e');
+  }
+}
+
+// Global variable to store pending replay data
+Map<String, dynamic>? _pendingReplayData;
 
 class FlowTestDemoApp extends StatelessWidget {
   const FlowTestDemoApp({super.key});
@@ -15,13 +40,15 @@ class FlowTestDemoApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const DemoHomePage(),
+      home: DemoHomePage(pendingReplay: _pendingReplayData),
     );
   }
 }
 
 class DemoHomePage extends StatefulWidget {
-  const DemoHomePage({super.key});
+  final Map<String, dynamic>? pendingReplay;
+
+  const DemoHomePage({super.key, this.pendingReplay});
 
   @override
   State<DemoHomePage> createState() => _DemoHomePageState();
@@ -33,6 +60,38 @@ class _DemoHomePageState extends State<DemoHomePage> {
   final _passwordController = TextEditingController();
   int _counter = 0;
   bool _isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _handlePendingReplay();
+  }
+
+  void _handlePendingReplay() {
+    if (widget.pendingReplay != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        try {
+          final flow = TestFlow.fromJson(
+            jsonDecode(widget.pendingReplay!['json']),
+          );
+          final speed = widget.pendingReplay!['speed'] as double;
+
+          // Show a snackbar to indicate auto-replay is starting
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Auto-replaying flow: ${flow.flowId}'),
+              duration: const Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          await FlowReplayer(rootContext: context, speed: speed).replay(flow);
+        } catch (e) {
+          debugPrint('Auto-replay failed: $e');
+        }
+      });
+    }
+  }
 
   void _incrementCounter() {
     setState(() {

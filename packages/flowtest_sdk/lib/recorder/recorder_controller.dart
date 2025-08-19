@@ -89,7 +89,7 @@ class RecorderController {
       action: lastStep.action,
       target: lastStep.target,
       value: lastStep.value,
-      expects: updatedExpectations,
+      expects: updatedExpectations as List<Expectation>?,
       metadata: lastStep.metadata,
     );
 
